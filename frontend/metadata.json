@@ -1,0 +1,6 @@
+{
+  "name": "DevDuel | GenLayer Developer Prediction Market",
+  "description": "High-signal prediction market for GitHub and developer milestones powered by GenLayer immutable HTTPS consensus.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
