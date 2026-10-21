@@ -136,7 +136,7 @@ export const Header: React.FC = () => {
                 </span>
                 <span className="text-[#C8C5BD]">·</span>
                 <span className="text-[#666460] font-medium font-mono text-[11px]">
-                  {truncateAddress(wallet, 3)}
+                  {truncateAddress(wallet!, 3)}
                 </span>
                 <ChevronDown className="w-3.5 h-3.5 text-[#666460]" />
               </button>
@@ -177,8 +177,8 @@ export const Header: React.FC = () => {
                       }}
                       className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-full bg-[#121212] text-white hover:bg-black font-semibold text-xs transition-colors cursor-pointer"
                     >
-                      <Plus className="w-3.5 h-3.5" />
-                      <span>Get $GEN tokens</span>
+                      
+                      <span>Get GEN tokens</span>
                     </button>
 
                     <button

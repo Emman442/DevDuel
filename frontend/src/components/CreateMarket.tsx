@@ -110,7 +110,7 @@ export const CreateMarket: React.FC<CreateMarketProps> = ({ onMarketCreated, onC
   };
 
   return (
-    <div className="space-y-8 max-w-3xl mx-auto py-2">
+    <div className="space-y-8 max-w-4xl mx-auto py-2">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-[#121212] font-sans">
@@ -126,14 +126,14 @@ export const CreateMarket: React.FC<CreateMarketProps> = ({ onMarketCreated, onC
           <button
             type="button"
             onClick={() => handleTemplate('pr')}
-            className="px-3 py-1 rounded-full bg-[#FFFFFF] border border-[#E8E5DF] hover:bg-[#EFECE6] text-xs font-semibold text-[#121212] transition-colors cursor-pointer"
+            className="px-2.5 py-1 rounded-full bg-[#FFFFFF] border border-[#E8E5DF] hover:bg-[#EFECE6] text-xs font-semibold text-[#121212] transition-colors cursor-pointer"
           >
             Pull Request
           </button>
           <button
             type="button"
             onClick={() => handleTemplate('release')}
-            className="px-3 py-1 rounded-full bg-[#FFFFFF] border border-[#E8E5DF] hover:bg-[#EFECE6] text-xs font-semibold text-[#121212] transition-colors cursor-pointer"
+            className="px-2.5 py-1 rounded-full bg-[#FFFFFF] border border-[#E8E5DF] hover:bg-[#EFECE6] text-xs font-semibold text-[#121212] transition-colors cursor-pointer"
           >
             Release Tag
           </button>
@@ -221,9 +221,7 @@ export const CreateMarket: React.FC<CreateMarketProps> = ({ onMarketCreated, onC
               </button>
             ))}
           </div>
-          <p className="text-[11px] text-[#949089]">
-            Converted to seconds before sending to the contract.
-          </p>
+         
         </div>
 
         <div className="pt-4 border-t border-[#F0EDE8] flex items-center justify-between">

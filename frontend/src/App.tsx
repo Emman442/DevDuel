@@ -36,7 +36,7 @@ function AppLayout() {
           <div className="flex items-center gap-2">
             <span className="font-bold text-[#121212]">DevDuel</span>
             <span>·</span>
-            <span>GenLayer Optimistic Consensus Protocol</span>
+            <span>Powered By GenLayer Optimistic Consensus Protocol</span>
           </div>
 
           <div className="flex items-center gap-4 text-[#666460]">
@@ -53,10 +53,7 @@ function AppLayout() {
             >
               All Markets
             </Link>
-            <span>·</span>
-            <span>2% Protocol Fee</span>
-            <span>·</span>
-            <span className="font-mono text-[#121212]">Chain 421614</span>
+          
           </div>
         </div>
       </footer>

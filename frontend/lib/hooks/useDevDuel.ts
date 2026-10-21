@@ -10,7 +10,7 @@ import type {
   Market,
   Position,
   Side,
-  CreateMarketParams,
+  CreateMarketParams
 } from "../contracts/types";
 
 const MARKETS_KEY = ["markets"] as const;
