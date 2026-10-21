@@ -60,7 +60,6 @@ function AppLayout() {
           </div>
         </div>
       </footer>
-      <NotificationToast />
     </div>
   );
 }
