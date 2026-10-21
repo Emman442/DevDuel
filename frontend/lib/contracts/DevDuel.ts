@@ -104,6 +104,7 @@ function normalizeMarket(raw: unknown): Market {
     created_at: toStringValue(data.created_at),
     resolved_at: toStringValue(data.resolved_at),
     protocol_fee_bps: toNumber(data.protocol_fee_bps),
+    appeal_deadline: toNumber(data.appeal_deadline),  // add this
     positions: [],
   };
 }
@@ -183,8 +184,8 @@ class DevDuel {
     const list = Array.isArray(rawPositions)
       ? rawPositions
       : rawPositions instanceof Map
-      ? Array.from(rawPositions.values())
-      : [];
+        ? Array.from(rawPositions.values())
+        : [];
     for (const row of list) {
       positions.push(normalizePosition(row));
     }
@@ -196,17 +197,19 @@ class DevDuel {
     return this.hydrateMarket(await this.read("get_market", [marketId]));
   }
 
+
   async getAllMarkets(): Promise<Market[]> {
     const raw = await this.read<unknown>("get_all_markets", []);
-    const list = Array.isArray(raw) ? raw : raw instanceof Map ? Array.from(raw.values()) : [];
+    const list = typeof raw === "string" ? JSON.parse(raw) : Array.isArray(raw) ? raw : [];
     const out: Market[] = [];
     for (const row of list) out.push(await this.hydrateMarket(row));
     return out;
   }
 
+
   async getOpenMarkets(): Promise<Market[]> {
     const raw = await this.read<unknown>("get_open_markets", []);
-    const list = Array.isArray(raw) ? raw : raw instanceof Map ? Array.from(raw.values()) : [];
+    const list = typeof raw === "string" ? JSON.parse(raw) : Array.isArray(raw) ? raw : [];
     const out: Market[] = [];
     for (const row of list) out.push(await this.hydrateMarket(row));
     return out;
@@ -214,15 +217,17 @@ class DevDuel {
 
   async getMarketPositions(marketId: string): Promise<Position[]> {
     const raw = await this.read<unknown>("get_market_positions", [marketId]);
-    const list = Array.isArray(raw) ? raw : raw instanceof Map ? Array.from(raw.values()) : [];
+    const list = typeof raw === "string" ? JSON.parse(raw) : Array.isArray(raw) ? raw : [];
     return list.map(normalizePosition);
   }
 
   async getUserPositions(wallet: string): Promise<Position[]> {
     const raw = await this.read<unknown>("get_user_positions", [wallet]);
-    const list = Array.isArray(raw) ? raw : raw instanceof Map ? Array.from(raw.values()) : [];
+    const list = typeof raw === "string" ? JSON.parse(raw) : Array.isArray(raw) ? raw : [];
     return list.map(normalizePosition);
   }
+
+
 
   async getTotalMarkets(): Promise<number> {
     return toNumber(await this.read("get_total_markets", []));
@@ -255,6 +260,10 @@ class DevDuel {
 
   async resolveMarket(marketId: string) {
     return this.write("resolve_market", [marketId], 0n);
+  }
+
+  async disputeResolution(marketId: string, appealContext: string) {
+    return this.write("dispute_resolution", [marketId, appealContext], 0n);
   }
 
   async finalizeMarket(marketId: string) {

@@ -22,6 +22,7 @@ import {
   useStake,
   useResolveMarket,
   useFinalizeMarket,
+  useDisputeResolution,
 } from '@/lib/hooks/useDevDuel';
 import { useQuery } from '@tanstack/react-query';
 import { getClient } from '@/lib/genlayer/client';
@@ -53,6 +54,10 @@ export const MarketDetail: React.FC<MarketDetailProps> = ({
   const [stakeError, setStakeError] = useState<string | null>(null);
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [copiedCriteria, setCopiedCriteria] = useState(false);
+
+  const { mutate: disputeResolution, isAppealing } = useDisputeResolution();
+  const [appealContext, setAppealContext] = useState('');
+  const [appealError, setAppealError] = useState<string | null>(null);
 
   const handleBack = () => {
     if (onBack) onBack();
@@ -135,6 +140,12 @@ export const MarketDetail: React.FC<MarketDetailProps> = ({
     (p) => p.staker.toLowerCase() === address?.toLowerCase()
   );
 
+  const canAppeal =
+    market != null &&
+    market.status === 'resolved' &&
+    market.appeal_deadline > 0 &&
+    Date.now() < market.deadline &&
+    myPositions?.length > 0;
   return (
     <div className="space-y-6 max-w-4xl mx-auto py-2">
       <div>
@@ -230,6 +241,46 @@ export const MarketDetail: React.FC<MarketDetailProps> = ({
                 Ready for Finalization
               </span>
             )}
+
+            {canAppeal && (
+              <div className="pt-3 border-t border-[#F0EDE8] space-y-3">
+                <div className="text-xs font-bold uppercase tracking-wider text-[#949089]">
+                  Appeal this verdict
+                </div>
+                <textarea
+                  rows={3}
+                  value={appealContext}
+                  onChange={(e) => setAppealContext(e.target.value)}
+                  placeholder="Explain why the verdict should be overturned. Reference the source and criteria."
+                  className="w-full bg-[#F7F5F2] border border-[#E8E5DF] rounded-2xl p-4 text-xs text-[#121212] placeholder-[#949089] focus:outline-none focus:border-[#121212]"
+                />
+                {appealError && (
+                  <div className="text-xs text-[#B91C1C] flex items-center gap-1.5">
+                    <AlertCircle className="w-3.5 h-3.5" />
+                    <span>{appealError}</span>
+                  </div>
+                )}
+                <button
+                  onClick={() => {
+                    setAppealError(null);
+                    if (appealContext.trim().length < 10) {
+                      setAppealError('Please give more context (at least 10 characters).');
+                      return;
+                    }
+                    disputeResolution(
+                      { marketId: market.market_id, context: appealContext.trim() },
+                      {
+                        onError: (err: any) => setAppealError(err?.message || 'Appeal failed.'),
+                      }
+                    );
+                  }}
+                  disabled={isAppealing}
+                  className="px-5 py-2.5 rounded-full bg-[#121212] hover:bg-black text-white text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  {isAppealing ? 'Submitting appeal…' : 'Submit Appeal'}
+                </button>
+              </div>
+            )}
           </div>
 
           <p className="text-sm text-[#4A4742] leading-relaxed">
@@ -251,6 +302,7 @@ export const MarketDetail: React.FC<MarketDetailProps> = ({
             </div>
           )}
         </div>
+
       )}
 
       {/* Resolvable banner */}
@@ -288,18 +340,16 @@ export const MarketDetail: React.FC<MarketDetailProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div
           onClick={() => setSelectedSide('YES')}
-          className={`bg-[#FFFFFF] rounded-3xl p-6 border transition-all cursor-pointer space-y-4 ${
-            selectedSide === 'YES'
-              ? 'border-[#121212] shadow-[0_4px_20px_rgba(0,0,0,0.06)]'
-              : 'border-[#E8E5DF] hover:border-[#D6D2C8]'
-          }`}
+          className={`bg-[#FFFFFF] rounded-3xl p-6 border transition-all cursor-pointer space-y-4 ${selectedSide === 'YES'
+            ? 'border-[#121212] shadow-[0_4px_20px_rgba(0,0,0,0.06)]'
+            : 'border-[#E8E5DF] hover:border-[#D6D2C8]'
+            }`}
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-[#949089]">Outcome Side</span>
             <span
-              className={`text-xs font-bold px-3 py-1 rounded-full ${
-                selectedSide === 'YES' ? 'bg-[#121212] text-white' : 'bg-[#F7F5F2] text-[#121212]'
-              }`}
+              className={`text-xs font-bold px-3 py-1 rounded-full ${selectedSide === 'YES' ? 'bg-[#121212] text-white' : 'bg-[#F7F5F2] text-[#121212]'
+                }`}
             >
               YES
             </span>
@@ -314,18 +364,16 @@ export const MarketDetail: React.FC<MarketDetailProps> = ({
 
         <div
           onClick={() => setSelectedSide('NO')}
-          className={`bg-[#FFFFFF] rounded-3xl p-6 border transition-all cursor-pointer space-y-4 ${
-            selectedSide === 'NO'
-              ? 'border-[#121212] shadow-[0_4px_20px_rgba(0,0,0,0.06)]'
-              : 'border-[#E8E5DF] hover:border-[#D6D2C8]'
-          }`}
+          className={`bg-[#FFFFFF] rounded-3xl p-6 border transition-all cursor-pointer space-y-4 ${selectedSide === 'NO'
+            ? 'border-[#121212] shadow-[0_4px_20px_rgba(0,0,0,0.06)]'
+            : 'border-[#E8E5DF] hover:border-[#D6D2C8]'
+            }`}
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-[#949089]">Outcome Side</span>
             <span
-              className={`text-xs font-bold px-3 py-1 rounded-full ${
-                selectedSide === 'NO' ? 'bg-[#121212] text-white' : 'bg-[#F7F5F2] text-[#121212]'
-              }`}
+              className={`text-xs font-bold px-3 py-1 rounded-full ${selectedSide === 'NO' ? 'bg-[#121212] text-white' : 'bg-[#F7F5F2] text-[#121212]'
+                }`}
             >
               NO
             </span>
@@ -362,9 +410,8 @@ export const MarketDetail: React.FC<MarketDetailProps> = ({
                     setStakeAmount(e.target.value);
                     setStakeError(null);
                   }}
-                  className={`w-full bg-[#F7F5F2] border rounded-full px-5 py-3 text-sm font-semibold text-[#121212] placeholder-[#949089] focus:outline-none ${
-                    stakeError ? 'border-[#B91C1C]' : 'border-[#E8E5DF] focus:border-[#121212]'
-                  }`}
+                  className={`w-full bg-[#F7F5F2] border rounded-full px-5 py-3 text-sm font-semibold text-[#121212] placeholder-[#949089] focus:outline-none ${stakeError ? 'border-[#B91C1C]' : 'border-[#E8E5DF] focus:border-[#121212]'
+                    }`}
                   placeholder="Amount in GEN"
                 />
                 <span className="absolute right-5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#949089]">GEN</span>

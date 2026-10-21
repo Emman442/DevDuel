@@ -247,6 +247,42 @@ export function useResolveMarket() {
   };
 }
 
+export function useDisputeResolution() {
+  const contract = useDevDuelContract();
+  const { address } = useWallet();
+  const queryClient = useQueryClient();
+  const [isAppealing, setIsAppealing] = useState(false);
+
+  const mutation = useMutation({
+    mutationFn: async ({ marketId, context }: { marketId: string; context: string }) => {
+      if (!contract) throw new Error("Contract not configured.");
+      if (!address) throw new Error("Wallet not connected.");
+      setIsAppealing(true);
+      return contract.disputeResolution(marketId, context);
+    },
+    onSuccess: (_data, variables) => {
+      invalidateMarketQueries(queryClient, variables.marketId);
+      setIsAppealing(false);
+      success("Appeal submitted", {
+        description: "Validators will re-review the verdict.",
+      });
+    },
+    onError: (err: any) => {
+      setIsAppealing(false);
+      error("Failed to submit appeal", {
+        description: err?.message || "Please try again.",
+      });
+    },
+  });
+
+  return {
+    ...mutation,
+    isAppealing,
+    disputeResolution: mutation.mutate,
+    disputeResolutionAsync: mutation.mutateAsync,
+  };
+}
+
 export function useFinalizeMarket() {
   const contract = useDevDuelContract();
   const { address } = useWallet();

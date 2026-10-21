@@ -61,7 +61,7 @@ export function formatTimeRemaining(deadlineIso: number, status: string): {
   }
 
   const deadline = new Date(deadlineIso).getTime();
-  const now = new Date('2026-10-20T10:58:10Z').getTime();
+  const now = new Date(Date.now()).getTime();
   const diffMs = deadline - now;
 
   if (diffMs <= 0) {

@@ -7,7 +7,8 @@ import { useMarkets } from '@/lib/hooks/useDevDuel';
 
 export const Home: React.FC = () => {
   const navigate = useNavigate();
-  const { data: markets = [] } = useMarkets();
+  const { data: markets} = useMarkets();
+  
 
   const { openCount, openPot, resolvableCount, resolvablePot } = useMemo(() => {
     let openCount = 0;
@@ -16,8 +17,7 @@ export const Home: React.FC = () => {
     let resolvablePot = 0;
 
     const now = Date.now();
-
-    markets.forEach((m) => {
+    markets?.forEach((m) => {
       const pot = m.yes_pool + m.no_pool;
       const isResolvable = m.status === 'open' && m.deadline > 0 && now >= m.deadline;
 
@@ -33,8 +33,9 @@ export const Home: React.FC = () => {
     return { openCount, openPot, resolvableCount, resolvablePot };
   }, [markets]);
 
+  
   const featuredMarkets = useMemo(() => {
-    return markets.filter((m) => m.status === 'open').slice(0, 3);
+    return markets?.filter((m) => m.status === 'open').slice(0, 3);
   }, [markets]);
 
   return (
@@ -57,7 +58,7 @@ export const Home: React.FC = () => {
 
       {/* Entry Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 px-2">
-        {/* Open Markets */}
+     
         <div
           onClick={() => navigate('/markets?filter=open')}
           className="group relative bg-[#FFFFFF] rounded-3xl p-7 sm:p-8 border border-[#E8E5DF] shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.05)] hover:border-[#D6D2C8] transition-all cursor-pointer flex flex-col justify-between"
@@ -163,13 +164,13 @@ export const Home: React.FC = () => {
             onClick={() => navigate('/markets')}
             className="text-xs font-semibold text-[#666460] hover:text-[#121212] flex items-center gap-1 transition-colors cursor-pointer"
           >
-            <span>View all {markets.length} markets</span>
+            <span>View all {markets?.length} markets</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
 
         <div className="space-y-3">
-          {featuredMarkets.map((market) => (
+          {featuredMarkets?.map((market) => (
             <MarketCard
               key={market.market_id}
               market={market}

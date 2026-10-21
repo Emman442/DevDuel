@@ -20,6 +20,7 @@ export interface Market {
   created_at: string;
   resolved_at: string;
   protocol_fee_bps: number;
+  appeal_deadline: number;  
   positions?: Position[];
 }
 
