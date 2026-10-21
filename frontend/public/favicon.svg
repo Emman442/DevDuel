@@ -1,0 +1,24 @@
+ <svg
+        width={iconSize}
+        height={iconSize}
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="shrink-0"
+      >
+        {/* Top face */}
+        <path
+          d="M12 2L21 7.2L12 12.4L3 7.2L12 2Z"
+          fill="#FF7442"
+        />
+        {/* Left face */}
+        <path
+          d="M3 7.2L12 12.4V22L3 16.8V7.2Z"
+          fill="#FF5A1F"
+        />
+        {/* Right face */}
+        <path
+          d="M12 12.4L21 7.2V16.8L12 22V12.4Z"
+          fill="#E64A12"
+        />
+      </svg>
