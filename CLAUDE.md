@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 # Linting
-genvm-lint check contracts/football_bets.py    # Lint a contract
+genvm-lint check contracts/dev_duel.py    # Lint a contract
 
 # Testing
 pytest tests/direct/ -v                        # Direct mode tests (fast, no Studio)

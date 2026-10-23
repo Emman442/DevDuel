@@ -225,6 +225,18 @@ def _handle_leader_error(leaders_res, leader_fn) -> bool:
     except Exception:
         return False
 
+def _pay_wei(self, to: str, amount_wei: int) -> None:
+    if amount_wei > 0:
+        _Recipient(Address(to)).emit_transfer(value=u256(amount_wei))
+
+def _refund_all(self, market_id: str) -> None:
+    pos_ids = [pid for pid in self.markets[market_id].position_ids]
+    for pid in pos_ids:
+        p = self.positions[pid]
+        if not p.claimed:
+            self._pay_wei(str(p.staker), int(p.amount) * WEI)
+            self.positions[pid].claimed = True
+
 
 @gl.evm.contract_interface
 class _Recipient:
@@ -650,11 +662,6 @@ Return a JSON object with exactly two keys.
 
     @gl.public.write
     def finalize_market(self, market_id: str) -> None:
-        """
-        Anyone can call after resolution, and after the appeal window if there is one.
-        - INVALID refunds every staker in full
-        - YES or NO lets winners split the losing pool, minus the protocol fee
-        """
         assert market_id in self.markets, f"{ERROR_EXPECTED} market not found"
         m = self.markets[market_id]
         assert m.status == "resolved", f"{ERROR_EXPECTED} market not resolved"
@@ -673,31 +680,39 @@ Return a JSON object with exactly two keys.
         losing_pool = int(m.no_pool) if winning_side == "YES" else int(m.yes_pool)
 
         if winning_pool == 0:
-            # nobody backed the winning side, so everyone gets their stake back
             self._refund_all(market_id)
             self.markets[market_id].status = "finalized"
             return
 
-        fee = (losing_pool * int(m.protocol_fee_bps)) // 10000
-        distributable = losing_pool - fee
+        losing_wei = losing_pool * WEI
+        fee_wei = (losing_wei * int(m.protocol_fee_bps)) // 10000
+        distributable_wei = losing_wei - fee_wei
 
-        allocated = 0
+        allocated_wei = 0
+        winners = []
         pos_ids = [pid for pid in m.position_ids]
         for pid in pos_ids:
             p = self.positions[pid]
             if p.claimed:
                 continue
-            self.positions[pid].claimed = True
             if str(p.side) == winning_side:
-                share = (int(p.amount) * distributable) // winning_pool
-                allocated += share
-                self._pay(str(p.staker), int(p.amount) + share)
-            # losing side receives nothing
+                winners.append(pid)
+            else:
+                self.positions[pid].claimed = True 
 
-        # protocol fee plus any rounding dust go to the admin
-        dust = distributable - allocated
-        self._pay(self.admin, fee + dust)
+        for i, pid in enumerate(winners):
+            p = self.positions[pid]
+            if i == len(winners) - 1:
+        
+                share_wei = distributable_wei - allocated_wei
+            else:
+                share_wei = (int(p.amount) * WEI * distributable_wei) // (winning_pool * WEI)
+                allocated_wei += share_wei
+            payout_wei = int(p.amount) * WEI + share_wei
+            self._pay_wei(str(p.staker), payout_wei)
+            self.positions[pid].claimed = True
 
+        self._pay_wei(self.admin, fee_wei)
         self.markets[market_id].status = "finalized"
 
     @gl.public.write

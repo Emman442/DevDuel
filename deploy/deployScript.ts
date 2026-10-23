@@ -17,11 +17,13 @@ export default async function main(client: GenLayerClient<any>) {
 
     await client.initializeConsensusSmartContract();
 
-    const admin = "0x9dCFF04fafC8e7cAC8c0A70DB61f2E33166dDFB6"; // replace with the deployer or intended admin
+    const admin = "0x9dCFF04fafC8e7cAC8c0A70DB61f2E33166dDFB6";
+    const protocolFeeBps = 200;          // 2%
+    const appealWindowSeconds = 48 * 60 * 60;  // 48 hours
 
     const deployTransaction = await client.deployContract({
       code: contractCode,
-      args: [admin],
+      args: [admin, protocolFeeBps, appealWindowSeconds],
     });
 
     const receipt = await client.waitForTransactionReceipt({
